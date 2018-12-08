@@ -30,30 +30,31 @@ public class App {
 
         final String containerName = config.getContainerName();
 
-        testFile(context, containerName, "myfile_100MB.bin");
-        testFile(context, containerName, "sample.pdf");
-        testFile(context, containerName, "myfile_32MB.bin");
-        testFile(context, containerName, "myfile_32_5MB.bin");
+        boolean multipart = true;
+        testFile(multipart, context, containerName, "myfile_100MB.bin");
+        testFile(multipart, context, containerName, "sample.pdf");
+        testFile(multipart, context, containerName, "myfile_32MB.bin");
+        testFile(multipart, context, containerName, "myfile_32_5MB.bin");
     }
 
-    private void testFile(BlobStoreContext context, String containerName, String filename) throws IOException {
+    private void testFile(boolean multipart, BlobStoreContext context, String containerName, String filename) throws IOException {
 
         final File file = new File(this.getClass().getClassLoader().getResource(filename).getFile());
         final long fileSize = file.length();
         final InputStream is = this.getClass().getClassLoader().getResourceAsStream(filename);
 
-        putContent(context, containerName, file);
-        putContent(context, containerName, is, filename, fileSize);
-        putContent(context, containerName, new FileInputStream(file), filename, fileSize);
+        putContent(multipart, context, containerName, file);
+        putContent(multipart, context, containerName, is, filename, fileSize);
+        putContent(multipart, context, containerName, new FileInputStream(file), filename, fileSize);
 
         byte[] buffer = new byte[(int) fileSize];
         IOUtils.readFully(new FileInputStream(file), buffer);
-        putContent(context, containerName, new ByteArrayInputStream(buffer), filename, fileSize);
+        putContent(multipart, context, containerName, new ByteArrayInputStream(buffer), filename, fileSize);
 
         System.out.println("----------------------------------------------");
     }
 
-    private void putContent(BlobStoreContext context, String containerName, File payload) {
+    private void putContent(boolean multipart, BlobStoreContext context, String containerName, File payload) {
 
         final BlobStore blobStore = context.getBlobStore();
 
@@ -66,10 +67,10 @@ public class App {
             .build();
 
         System.out.println("Uploading " + name);
-        blobStore.putBlob(containerName, blob, PutOptions.Builder.multipart());
+        blobStore.putBlob(containerName, blob, PutOptions.Builder.multipart(multipart));
     }
 
-    private void putContent(BlobStoreContext context, String containerName, InputStream payload, String filename, long contentLength) {
+    private void putContent(boolean multipart, BlobStoreContext context, String containerName, InputStream payload, String filename, long contentLength) {
         final BlobStore blobStore = context.getBlobStore();
 
         final String name = filename + "-" + DATE_FORMAT.format(new Date()) + "-" + UUID.randomUUID();
@@ -82,7 +83,7 @@ public class App {
 
         System.out.println("Uploading " + name);
         try {
-            blobStore.putBlob(containerName, blob, PutOptions.Builder.multipart(false));
+            blobStore.putBlob(containerName, blob, PutOptions.Builder.multipart(multipart));
         } catch (Exception e) {
             System.err.println("Failed uploading file of size " + (contentLength / (1024 * 1024)) + "MB");
         }
