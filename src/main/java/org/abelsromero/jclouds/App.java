@@ -1,6 +1,5 @@
 package org.abelsromero.jclouds;
 
-import org.abelsromero.jclouds.blob.BlobConnector;
 import org.apache.commons.io.IOUtils;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.BlobStoreContext;
@@ -83,7 +82,7 @@ public class App {
 
         System.out.println("Uploading " + name);
         try {
-            blobStore.putBlob(containerName, blob, PutOptions.Builder.multipart());
+            blobStore.putBlob(containerName, blob, PutOptions.Builder.multipart(false));
         } catch (Exception e) {
             System.err.println("Failed uploading file of size " + (contentLength / (1024 * 1024)) + "MB");
         }

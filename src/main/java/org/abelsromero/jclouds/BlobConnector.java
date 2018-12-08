@@ -1,4 +1,4 @@
-package org.abelsromero.jclouds.blob;
+package org.abelsromero.jclouds;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
